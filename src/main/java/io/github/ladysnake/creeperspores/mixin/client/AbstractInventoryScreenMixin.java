@@ -49,7 +49,7 @@ public abstract class AbstractInventoryScreenMixin {
     private MutableText updateRenderedEffectName(MutableText drawnString) {
         StatusEffect renderedEffect = renderedEffects.get(renderedEffectsIndex++).getEffectType();
         if (renderedEffect instanceof CreeperSporeEffect sporeEffect) {
-            return sporeEffect.getLocalizedName().shallowCopy();
+            return sporeEffect.getLocalizedName().copyContentOnly();
         }
         return drawnString;
     }

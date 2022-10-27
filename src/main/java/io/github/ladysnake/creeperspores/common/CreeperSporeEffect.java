@@ -24,7 +24,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -55,7 +54,7 @@ public class CreeperSporeEffect extends StatusEffect {
     }
 
     public Text getLocalizedName() {
-        return new TranslatableText("effect.creeperspores.generic_spore", this.creeperType.getName());
+        return Text.translatable("effect.creeperspores.generic_spore", this.creeperType.getName());
     }
 
 }

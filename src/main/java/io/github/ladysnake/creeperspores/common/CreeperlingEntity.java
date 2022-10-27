@@ -62,6 +62,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.thread.ThreadExecutor;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.LightType;
@@ -75,6 +76,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 
 public class CreeperlingEntity extends PathAwareEntity implements SkinOverlayOwner {
     private static final TrackedData<Boolean> CHARGED = DataTracker.registerData(CreeperlingEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -185,7 +187,7 @@ public class CreeperlingEntity extends PathAwareEntity implements SkinOverlayOwn
             Entity e = player.world.getEntityById(entityId);
             if (e instanceof CreeperlingEntity) {
                 for(int i = 0; i < 15; ++i) {
-                    Random random = e.world.random;
+                    RandomGenerator random = (RandomGenerator) e.world.random;
                     double speedX = random.nextGaussian() * 0.02D;
                     double speedY = random.nextGaussian() * 0.02D;
                     double speedZ = random.nextGaussian() * 0.02D;
@@ -219,7 +221,7 @@ public class CreeperlingEntity extends PathAwareEntity implements SkinOverlayOwn
     }
 
     @Override
-    protected int getXpToDrop(PlayerEntity player) {
+    public int getXpToDrop() {
         return 2 + this.world.random.nextInt(3);
     }
 
@@ -228,7 +230,7 @@ public class CreeperlingEntity extends PathAwareEntity implements SkinOverlayOwn
         // Creeperlings like sunlight
         int skyLightLevel = worldView.getLightLevel(LightType.SKY, pos);
         // method_28516 == getBrightness
-        float skyFavor = worldView.getDimension().getBrightness(skyLightLevel) * 3.0F;
+        float skyFavor = computeBrightnessByLightLevel(worldView.getDimension().ambientLight())[skyLightLevel] * 3.0F;
         // But they can do with artificial light if there is not anything better
         // One day we will get in trouble for using this method, but in the mean time it's used by everything else
         @SuppressWarnings("deprecation") float brightnessAtPos = worldView.getBrightness(pos);
@@ -243,6 +245,16 @@ public class CreeperlingEntity extends PathAwareEntity implements SkinOverlayOwn
             favor += 4.0F;
         }
         return favor;
+    }
+
+    private static float[] computeBrightnessByLightLevel(float ambientLight) {
+        float[] fs = new float[16];
+        for (int i = 0; i <= 15; ++i) {
+            float f = (float)i / 15.0f;
+            float g = f / (4.0f - 3.0f * f);
+            fs[i] = MathHelper.lerp(ambientLight, g, 1.0f);
+        }
+        return fs;
     }
 
     public boolean isCharged() {
